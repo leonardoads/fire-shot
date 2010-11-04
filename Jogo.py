@@ -18,7 +18,7 @@ def main():
 	pygame.display.set_caption("Fire shot")
 
 	#definicao da imagem de fundo
-	background = pygame.image.load('imagens'+ sep +"fase1" + sep + "fundo_fase1_0.jpg")
+	background = pygame.image.load('imagens'+ sep +"fase1" + sep + "fundo_fase1_0.png")
 	background_size = background.get_size()
 	background_position= (400 - (background_size[0]/2), 300 - (background_size[1]/2))
 	
@@ -42,9 +42,25 @@ def main():
 		#elif pressed_keys[K_DOWN]:
 			#nova_direcao = 'baixo'
 		i = 0
+		if pressed_keys[K_SPACE]:
+			som_tiro = pygame.mixer.music.load("soms" + sep + "tiro.mp3")
+			som_tiro = pygame.mixer.music.play(-1)
+			bala = pygame.image.load('imagens' + sep + 'tiro' + sep + 'bala.png').convert()
+			x = leon.rect[:]
+			x[1] += 30
+			x[0] += 80
+			for i in xrange(20):
+				screen.blit(background, background_position)
+				screen.blit(bala, x)
+				screen.blit(leon.image, leon.rect)
+				pygame.display.update()
+				x[0] += 30
+			som_tiro = pygame.mixer.music.stop()
+		if pressed_keys[K_s]:
+                        break
 		if pressed_keys[K_RIGHT]:
 			leon.rect[0] += 10
-			for i in range(7):
+			for i in xrange(7):
 				leon.image = lista_image_leon[i]
 				leon.rect[0] += 5
 				screen.fill((0,0,0))
@@ -54,6 +70,14 @@ def main():
 				pygame.display.update()
 		elif pressed_keys[K_LEFT]:
 			leon.rect[0] -= 10
+			for i in xrange(7):
+				leon.image = lista_image_leon[i]
+				leon.rect[0] -= 5
+				screen.fill((0,0,0))
+				screen.blit(background, background_position)
+				screen.blit(leon.image, leon.rect)
+				
+				pygame.display.update()
 		else:
 			leon.image = lista_image_leon[0]
 		#elif pressed_keys[K_LEFT]:

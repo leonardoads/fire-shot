@@ -5,7 +5,7 @@ import pygame
 from sys import exit
 from pygame.locals import *
 from os import sep
-
+import Jogo
 screen_width, screen_height = 800,600
 
 pygame.init()
@@ -17,6 +17,14 @@ pygame.display.set_caption("Fire shot")
 background = pygame.image.load('imagens'+ sep +"menu" + sep + "menu.jpg")
 background_size = background.get_size()
 background_position= (screen_width/2) - (background_size[0]/2), (screen_height/2) - (background_size[1]/2)
+img_width, img_height = background.get_size()
+x, y = (screen_width/2) - (img_width/2), (screen_height/2) - (img_height/2)
+
+#definicao musica
+pressed_keys = pygame.key.get_pressed()
+musica_menu = pygame.mixer.music.load("music" + sep + "music1.mp3")
+musica_menu = pygame.mixer.music.play(-1)
+tocando = True
 
 #DEFINICOES DOS BOTOES DO MENU
 #definicao do botao jogar
@@ -63,87 +71,101 @@ while True:
         if event.type == QUIT:
             exit()
     
-	pressed = False
-        
+        pressed = False
 	#CHAMADA DA UTILIZAÇÃO DO MOUSE
-	mouse_position = pygame.mouse.get_pos()
-	mouse_pressionado = pygame.mouse.get_pressed()
+        mouse_position = pygame.mouse.get_pos()
+
+        mouse_pressionado = pygame.mouse.get_pressed()
 	
 	#Escolha das opcoes do menu
 	
 	#escolha do botao jogar	
-	if jogar_position[0] <= mouse_position[0] <= jogar_position[0] + jogar_size[0] \
-	and jogar_position[1] <= mouse_position[1] <= jogar_position[1] + jogar_size[1]:
+        if jogar_position[0] <= mouse_position[0] <= jogar_position[0] + jogar_size[0] \
+        and jogar_position[1] <= mouse_position[1] <= jogar_position[1] + jogar_size[1]:
 		
-		botao_jogar = botoes_jogar[1]
+            botao_jogar = botoes_jogar[1]
 		
-		if mouse_pressionado[0]:
-			botao_jogar = botoes_jogar[2]
-			pressed = True
-			#Jogo.main()
-		if not mouse_pressionado[0] and pressed:
-			botao_jogar = botoes_jogar[1]
+            if mouse_pressionado[0]:
+                cont = 0
+                ind = 0
+                for i in range(999999):
+                    imagens = ['loading..bmp','loading...bmp','loading....bmp','loading.....bmp']
+                    cont += 1
+                    if cont == 222222:
+                        load = pygame.image.load('imagens'+ sep +"loading" + sep + imagens[ind])
+                        ind += 1
+                        screen.blit(load,(x,y))
+                        pygame.display.update()
+                        if ind > 3:
+                            ind = 0
+                musica_menu = pygame.mixer.music.stop()
+                botao_jogar = botoes_jogar[2]
+                pressed = True
+                Jogo.main()
+				#musica_menu = pygame.mixer.music.load("music" + sep + "music1.mp3")
+                musica_menu = pygame.mixer.music.play(-1)
+            if not mouse_pressionado[0] and pressed:
+                botao_jogar = botoes_jogar[1]
 	
-	else: botao_jogar = botoes_jogar[0]
-	
+        else: botao_jogar = botoes_jogar[0]
 	#escolha do botao opcoes
-	if opcoes_position[0] <= mouse_position[0] <= opcoes_position[0] + opcoes_size[0] \
-	and opcoes_position[1] <= mouse_position[1] <= opcoes_position[1] + opcoes_size[1]:
+        if opcoes_position[0] <= mouse_position[0] <= opcoes_position[0] + opcoes_size[0] \
+        and opcoes_position[1] <= mouse_position[1] <= opcoes_position[1] + opcoes_size[1]:
 		
-		botao_opcao = botoes_opcoes[1]
+            botao_opcao = botoes_opcoes[1]
 		
-		if mouse_pressionado[0]:
-			botao_opcao = botoes_opcoes[2]
-			pressed = True
-			#Opcao.main()
-		if not mouse_pressionado[0] and pressed:
-			botao_opcao = botoes_opcoes[1]
+            if mouse_pressionado[0]:
+                botao_opcao = botoes_opcoes[2]
+                pressed = True
+		#Opcao.main()
+            if not mouse_pressionado[0] and pressed:
+                botao_opcao = botoes_opcoes[1]
 	
-	else: botao_opcao = botoes_opcoes[0]
+        else: botao_opcao = botoes_opcoes[0]
 	
 	#escolha do botao ranking
-	if ranking_position[0] <= mouse_position[0] <= ranking_position[0] + ranking_size[0] \
-	and ranking_position[1] <= mouse_position[1] <= ranking_position[1] + ranking_size[1]:
+        if ranking_position[0] <= mouse_position[0] <= ranking_position[0] + ranking_size[0] \
+        and ranking_position[1] <= mouse_position[1] <= ranking_position[1] + ranking_size[1]:
 		
-		botao_ranking = botoes_ranking[1]
+            botao_ranking = botoes_ranking[1]
 		
-		if mouse_pressionado[0]:
-			botao_ranking = botoes_ranking[2]
-			pressed = True
-			#Ranking.main()
-		if not mouse_pressionado[0] and pressed:
-			botao_ranking = botoes_ranking[1]
+            if mouse_pressionado[0]:
+                botao_ranking = botoes_ranking[2]
+                pressed = True
+                #Ranking.main()
+            if not mouse_pressionado[0] and pressed:
+                botao_ranking = botoes_ranking[1]
 	
-	else: botao_ranking = botoes_ranking[0]
+            else: botao_ranking = botoes_ranking[0]
 	
 	#escolha do botao creditos
-	if creditos_position[0] <= mouse_position[0] <= creditos_position[1] + creditos_size[1]\
-	and creditos_position[1] <= mouse_position[1] <= creditos_position[1] + creditos_size[1]:
+        if creditos_position[0] <= mouse_position[0] <= creditos_position[1] + creditos_size[1]\
+        and creditos_position[1] <= mouse_position[1] <= creditos_position[1] + creditos_size[1]:
 		
-		botao_creditos = botoes_creditos[1]
+            botao_creditos = botoes_creditos[1]
 		
-		if mouse_pressionado[0]:
-			botao_creditos = botoes_creditos[2]
-			pressed = True
-			#Creditos.main()
-		if not mouse_pressionado[0] and pressed:
-			botao_creditos = botoes_creditos[1]
+            if mouse_pressionado[0]:
+                botao_creditos = botoes_creditos[2]
+                pressed = True
+                #Creditos.main()
+            if not mouse_pressionado[0] and pressed:
+                botao_creditos = botoes_creditos[1]
 	
-	else: botao_creditos = botoes_creditos[0]
-	#escolha da opcao sair
-	if sair_position[0] <= mouse_position[0] <= sair_position[1] + sair_size[1]\
-	and sair_position[1] <= mouse_position[1] <= sair_position[1] + sair_size[1]:
+        else: botao_creditos = botoes_creditos[0]
+        #escolha da opcao sair
+        if sair_position[0] <= mouse_position[0] <= sair_position[1] + sair_size[1]\
+        and sair_position[1] <= mouse_position[1] <= sair_position[1] + sair_size[1]:
 		
-		botao_sair = botoes_sair[1]
+            botao_sair = botoes_sair[1]
 		
-		if mouse_pressionado[0]:
-			botao_sair = botoes_sair[2]
-			pressed = True
-			exit()
-		if not mouse_pressionado[0] and pressed:
-			botao_sair = botoes_sair[1]
+            if mouse_pressionado[0]:
+                botao_sair = botoes_sair[2]
+                pressed = True
+                exit()
+            if not mouse_pressionado[0] and pressed:
+                botao_sair = botoes_sair[1]
 	
-	else: botao_sair = botoes_sair[0]
+        else: botao_sair = botoes_sair[0]
 	
     #colocacao da imagem de fundo na tela
     screen.blit(background, background_position)
