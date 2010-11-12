@@ -20,11 +20,20 @@ background_position= (screen_width/2) - (background_size[0]/2), (screen_height/2
 img_width, img_height = background.get_size()
 x, y = (screen_width/2) - (img_width/2), (screen_height/2) - (img_height/2)
 
+#definicao imagem de creditos
+cred = pygame.image.load("imagens" + sep + "creditos" + sep + "creditos.png").convert_alpha()
+
 #definicao musica
 pressed_keys = pygame.key.get_pressed()
 musica_menu = pygame.mixer.music.load("music" + sep + "music1.mp3")
 musica_menu = pygame.mixer.music.play(-1)
-tocando = True
+	
+
+#DEFINICAO DO VIDEO DO MENU:
+def filme_menu():
+    filme = pygame.movie.Movie('videos' + sep + 'inicio2_menu.mpg')
+    filme.play()
+
 
 #DEFINICOES DOS BOTOES DO MENU
 #definicao do botao jogar
@@ -66,6 +75,25 @@ sair_size = botao_sair.get_size()
 sair_position = ((screen_width/4 - sair_size[0]/4)*(0.5), 
 2*screen_height/2.5 - sair_size[1]/2)
 
+def load ():
+    ind, cont = 0,0
+    for i in range(999999):
+        imagens = ['loading..bmp','loading...bmp','loading....bmp','loading.....bmp']
+        cont += 1
+        if cont == 222222:
+            load = pygame.image.load('imagens'+ sep +"loading" + sep + imagens[ind])
+            ind += 1
+            screen.blit(load,(x,y))
+            pygame.display.update()
+            if ind > 3:
+                ind = 0
+def filme():
+    pygame.time.delay(17)
+    filme_menu = pygame.movie.Movie("videos" + sep + "inicio2_menu.mpg")
+    filme_menu.play()
+    
+creditos = False
+comeco = 0
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -76,6 +104,11 @@ while True:
         mouse_position = pygame.mouse.get_pos()
 
         mouse_pressionado = pygame.mouse.get_pressed()
+        #while comeco == 0:
+            #filme = pygame.movie.Movie('videos' + sep + 'inicio2_menu.mpg')
+            #comeco += 1
+            #filme.play()
+            #pygame.display.update()
 	
 	#Escolha das opcoes do menu
 	
@@ -86,23 +119,13 @@ while True:
             botao_jogar = botoes_jogar[1]
 		
             if mouse_pressionado[0]:
-                cont = 0
-                ind = 0
-                for i in range(999999):
-                    imagens = ['loading..bmp','loading...bmp','loading....bmp','loading.....bmp']
-                    cont += 1
-                    if cont == 222222:
-                        load = pygame.image.load('imagens'+ sep +"loading" + sep + imagens[ind])
-                        ind += 1
-                        screen.blit(load,(x,y))
-                        pygame.display.update()
-                        if ind > 3:
-                            ind = 0
+                creditos = False
                 musica_menu = pygame.mixer.music.stop()
                 botao_jogar = botoes_jogar[2]
                 pressed = True
+                carregar = load()
+                carregar = load()				
                 Jogo.main()
-				#musica_menu = pygame.mixer.music.load("music" + sep + "music1.mp3")
                 musica_menu = pygame.mixer.music.play(-1)
             if not mouse_pressionado[0] and pressed:
                 botao_jogar = botoes_jogar[1]
@@ -115,9 +138,22 @@ while True:
             botao_opcao = botoes_opcoes[1]
 		
             if mouse_pressionado[0]:
+                creditos = False
                 botao_opcao = botoes_opcoes[2]
                 pressed = True
-		#Opcao.main()
+                #Opcao.main()
+                pressed_keys = pygame.key.get_pressed()
+                opcao_image = pygame.image.load('imagens'+sep+'opcoes'+sep+"opcoes.jpg")
+                screen.blit(opcao_image, (x,y))
+                pygame.display.update()
+                while True:
+                    for event in pygame.event.get():
+                        if event.type == QUIT:
+                            exit()
+                    if pressed_keys[K_s]:
+                        break
+					
+					
             if not mouse_pressionado[0] and pressed:
                 botao_opcao = botoes_opcoes[1]
 	
@@ -130,6 +166,7 @@ while True:
             botao_ranking = botoes_ranking[1]
 		
             if mouse_pressionado[0]:
+                creditos = False
                 botao_ranking = botoes_ranking[2]
                 pressed = True
                 #Ranking.main()
@@ -148,6 +185,20 @@ while True:
                 botao_creditos = botoes_creditos[2]
                 pressed = True
                 #Creditos.main()
+                #pressed_keys = pygame.key.get_pressed()
+                #screen.blit(cred, (x+100,y+200))
+                #pygame.display.update()
+                if creditos == False:
+                    creditos = True
+                else:
+                    creditos = False
+                #while True:
+                #    for event in pygame.event.get():
+                #        if event.type == QUIT:
+                #            exit()
+                #        if pressed_keys[K_s]:
+                #            break
+					
             if not mouse_pressionado[0] and pressed:
                 botao_creditos = botoes_creditos[1]
 	
@@ -166,7 +217,7 @@ while True:
                 botao_sair = botoes_sair[1]
 	
         else: botao_sair = botoes_sair[0]
-	
+	    
     #colocacao da imagem de fundo na tela
     screen.blit(background, background_position)
     
@@ -176,5 +227,6 @@ while True:
     screen.blit(botao_ranking, ranking_position)
     screen.blit(botao_creditos, creditos_position)
     screen.blit(botao_sair, sair_position)
-    
+    if creditos == True:
+        screen.blit(cred, (x+100,y+200))
     pygame.display.update()
