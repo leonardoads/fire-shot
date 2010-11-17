@@ -52,7 +52,7 @@ def main():
 	leon.rect = [0,480]
 	seletor_image_leon = 0
 	seletor_lista_imagem_da_vez = 'normal'
-	
+	controle_velocidade_troca_imagens = 0
 	#definicao inimigo
 	inimigo = Inimigo()
 	lista_imagem_inimigo = [pygame.image.load('imagens' + sep + 'inimigo' + sep + 'inimigo_'+ str(i) + '.png') for i in xrange(6)]
@@ -145,7 +145,6 @@ def main():
 			som_tiro.play()
 			
 		if pygame.sprite.collide_mask(tiro, inimigo):
-			print 'leon'
 			inimigo.rect = [750, 480]
 		tela.screen.fill((0,0,0))
 		#colocacao da imagem de fundo na tela
@@ -163,9 +162,10 @@ def main():
 		pygame.display.update()
 		
 		#faz com que as imagens dos personagens variem
-		seletor_image_leon += 1	
-		seletor_imagem_inimigo += 1	
-
+		if controle_velocidade_troca_imagens % 5 == 0:
+			seletor_image_leon += 1	
+			seletor_imagem_inimigo += 1	
+		controle_velocidade_troca_imagens += 1
 if __name__ == '__main__':
 	
 	main()
