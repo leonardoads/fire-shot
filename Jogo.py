@@ -15,7 +15,7 @@ class Tela:
 		pygame.display.set_caption("Fire shot")
 		self.background = pygame.image.load('imagens'+ sep +"fase1" + sep + "fundo_fase1_0.png").convert()
 		self.background_size = self.background.get_size()
-		self.background_position= (400 - (self.background_size[0]/2), 300 - (self.background_size[1]/2))
+		self.background_position= [0,-25]
 	
 class Leon(pygame.sprite.Sprite):
 	images = []
@@ -58,6 +58,8 @@ def main():
 	lista_imagem_inimigo = [pygame.image.load('imagens' + sep + 'inimigo' + sep + 'inimigo_'+ str(i) + '.png') for i in xrange(6)]
 	inimigo.rect = [750, 480]
 	seletor_imagem_inimigo = 0
+	mor = False
+	novo_inimigo, novo_inimigo_heli = 0, 0
 	
 	#definicao do Tiro
 	tiro = Tiro(leon.rect)
@@ -90,6 +92,9 @@ def main():
 			
 		if atirar and tiro.rect[0] > 800:
 			atirar = False
+		if mor == True and novo_inimigo % 100 == 0:
+			x1,y1 = 750, 450
+			mor = False
 		
 		
 		#Chamada das teclas
@@ -112,11 +117,17 @@ def main():
 			
 		if pressed_keys[K_RIGHT]:
 			leon.image = lista_imagem_leon_vez[seletor_image_leon]
-			leon.rect[0] += 10
-		
+			if leon.rect[0] > 400 and tela.background_position[0] > -7200:
+				tela.background_position[0] -= 10
+			else:
+				leon.rect[0] += 10
+				
 		elif pressed_keys[K_LEFT]:
 			leon.image = lista_imagem_leon_vez[seletor_image_leon]
-			leon.rect[0] -= 10
+			if leon.rect[0] < 0 and tela.background_position[0] >0:
+				tela.background_position[0] += 10
+			else:
+				leon.rect[0] -= 10
 
 		elif pressed_keys[K_UP]:
 			desliza_cima = True
@@ -146,13 +157,22 @@ def main():
 			
 		if pygame.sprite.collide_mask(tiro, inimigo):
 			inimigo.rect = [750, 480]
+			mor = True
+		tela.screen.fill((0,0,0))
+		
+		#blita a imagem do inimigo
+		
 		tela.screen.fill((0,0,0))
 		#colocacao da imagem de fundo na tela
 		tela.screen.blit(tela.background, tela.background_position)
 		
 		#colocacao dos personagens na tela
 		tela.screen.blit(leon.image, leon.rect)
-		tela.screen.blit(inimigo.image, inimigo.rect)
+		
+		if (mor == False):
+			tela.screen.blit(inimigo.image,inimigo.rect)
+			#inimigo.rect[0] -= 5
+		#tela.screen.blit(inimigo.image, inimigo.rect)
 		if atirar and tiro.rect[0] < 800:
 			tela.screen.blit(tiro.image , tiro.rect)
 			tela.screen.blit(fogo_tiro , fogo_position)
@@ -166,6 +186,7 @@ def main():
 			seletor_image_leon += 1	
 			seletor_imagem_inimigo += 1	
 		controle_velocidade_troca_imagens += 1
+		novo_inimigo += 1
 if __name__ == '__main__':
 	
 	main()
