@@ -6,11 +6,13 @@ from sys import exit
 from pygame.locals import *
 from os import sep
 import Jogo
-screen_width, screen_height = 800,600
+from opcoes import *
+
+
 def menu():
 	pygame.init()
 	#DEFINICAO DA TELA
-	screen = pygame.display.set_mode((screen_width,screen_height), 0, 32)
+	screen = pygame.display.set_mode((screen_width,screen_height),FULLSCREEN, 32)
 	pygame.display.set_caption("Fire shot")
 
 	#definicao da imagem de fundo
@@ -29,13 +31,13 @@ def menu():
 	pressed_keys = pygame.key.get_pressed()
 	musica_menu = pygame.mixer.music.load("music" + sep + "music1.mp3")
 	musica_menu = pygame.mixer.music.play(-1)
+	pygame.mixer.music.set_volume(10)
 		
 
-	#DEFINICAO DO VIDEO DO MENU:
-	def filme_menu():
-		filme = pygame.movie.Movie('videos' + sep + 'inicio2_menu.mpg')
-		filme.play()
-
+	#DEFINICAO MOUSE:
+	#pygame.mouse.set_cursor("imagens" + sep + "cursor" + sep + "cursor.png")
+	#cursor = pygame.cursors.compile(pygame.cursors.textmarker_strings)
+	#pygame.mouse.set_cursor(cursor)
 
 	#DEFINICOES DOS BOTOES DO MENU
 	#definicao do botao jogar
@@ -100,6 +102,9 @@ def menu():
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				exit()
+		#Chamada das teclas
+			pressed_keys = pygame.key.get_pressed()
+		
 		
 			pressed = False
 		#CHAMADA DA UTILIZAÇÃO DO MOUSE
@@ -143,18 +148,7 @@ def menu():
 					creditos = False
 					botao_opcao = botoes_opcoes[2]
 					pressed = True
-					#Opcao.main()
-					pressed_keys = pygame.key.get_pressed()
-					opcao_image = pygame.image.load('imagens'+sep+'opcoes'+sep+"opcoes.jpg")
-					screen.blit(opcao_image, (x,y))
-					pygame.display.update()
-					while True:
-						for event in pygame.event.get():
-							if event.type == QUIT:
-								exit()
-						if pressed_keys[K_s]:
-							break
-						
+					opcoes()
 						
 				if not mouse_pressionado[0] and pressed:
 					botao_opcao = botoes_opcoes[1]

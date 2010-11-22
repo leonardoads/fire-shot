@@ -10,7 +10,7 @@ screen_width, screen_height = 800,600
 
 pygame.init()
 #DEFINICAO DA TELA
-screen = pygame.display.set_mode((screen_width,screen_height), 0, 32)
+screen = pygame.display.set_mode((screen_width,screen_height), FULLSCREEN, 32)
 pygame.display.set_caption("Fire shot")
 
 #DEFINICAO DO SOM
