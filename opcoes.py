@@ -8,20 +8,21 @@ import pygame
 from sys import exit
 from pygame.locals import *
 from os import sep
+from tela import *
 
 screen_width, screen_height = 800,600
 
 def opcoes():
 	pygame.init()
 	x = 0
-	tipo = FULLSCREEN
-	
-	#DEFINICAO DA TELA
-	#def tipo_tela(tipo):
-	#	global screen
-	screen = pygame.display.set_mode((screen_width,screen_height), tipo, 32)
-	pygame.display.set_caption("Fire shot")
-	#tipo_tela(tipo)
+	tipo = 0
+	tela = Tela("opcoes","image_opcoes.jpg")
+	##DEFINICAO DA TELA
+	##def tipo_tela(tipo):
+	##	global screen
+	#screen = pygame.display.set_mode((screen_width,screen_height), tipo, 32)
+	#pygame.display.set_caption("Fire shot")
+	##tipo_tela(tipo)
 	
 	#Palavras a ser impressas
 	tipo_tela = pygame.image.load('imagens'+ sep +"opcoes" + sep + "tipo_tela.png")
@@ -29,11 +30,11 @@ def opcoes():
 	
 	#definicao da imagem de fundo
 	
-	fundo_opcoes = pygame.image.load('imagens'+ sep +"opcoes" + sep + "image_opcoes.jpg")
+	#fundo_opcoes = pygame.image.load('imagens'+ sep +"opcoes" + sep + "image_opcoes.jpg")
 	icon = pygame.image.load('imagens'+ sep +"menu" + sep + "icon.bmp")
 	pygame.display.set_icon(icon)
-	fundo_opcoes_size = fundo_opcoes.get_size()
-	fundo_opcoes_position = (screen_width/2) - (fundo_opcoes_size[0]/2), (screen_height/2) - (fundo_opcoes_size[1]/2)
+	#fundo_opcoes_size = fundo_opcoes.get_size()
+	#fundo_opcoes_position = (screen_width/2) - (fundo_opcoes_size[0]/2), (screen_height/2) - (fundo_opcoes_size[1]/2)
 
 	#DEFINICOES DOS BOTOES DO OPCOES
 	#definicao do botao voltar
@@ -126,14 +127,17 @@ def opcoes():
 					else:
 						botao_escolha_tela = botoes_tela[0]
 					if botao_escolha_tela == botoes_tela[1]:
-						tipo + FULLSCREEN
-						screen = pygame.display.set_mode((screen_width,screen_height), tipo, 32)
+						tela.fullscreen()
 					else:
-						tipo = 0
-						screen = pygame.display.set_mode((screen_width,screen_height), tipo, 32)
+						tela.sair_fullsreen()
 				
 			else: botao_voltar = botoes_voltar[0]
-			
+			if pressed_keys[K_F11]:
+					x += 1
+					if x % 5 == 0:
+						tela.fullscreen()
+					else:
+						tela.sair_fullsreen()
 			
 			#escolha do botao voltar	
 			if voltar_position[0] <= mouse_position[0] <= voltar_position[0] + voltar_size[0] \
@@ -145,22 +149,15 @@ def opcoes():
 				
 			else: botao_voltar = botoes_voltar[0]
 
-			if pressed_keys[K_t]:
-					x += 1
-					if x % 5 == 0:
-						tipo + FULLSCREEN
-						screen = pygame.display.set_mode((screen_width,screen_height), tipo, 32)
-					else:
-						tipo = 0
-						screen = pygame.display.set_mode((screen_width,screen_height), tipo, 32)
-			screen.blit(fundo_opcoes, fundo_opcoes_position)
-			screen.blit(tipo_tela, (300,400))
-			screen.blit(volume, (300,300))
-			screen.blit(anime_volume, anime_volume_position)
-			screen.blit(botao_mais, mais_position)
-			screen.blit(botao_menos, menos_position)
-			screen.blit(botao_escolha_tela, botao_escolha_tela_position)
-			screen.blit(botao_voltar, voltar_position)
+			
+			tela.screen.blit(tela.background , tela.background_position)
+			tela.screen.blit(tipo_tela, (300,400))
+			tela.screen.blit(volume, (300,300))
+			tela.screen.blit(anime_volume, anime_volume_position)
+			tela.screen.blit(botao_mais, mais_position)
+			tela.screen.blit(botao_menos, menos_position)
+			tela.screen.blit(botao_escolha_tela, botao_escolha_tela_position)
+			tela.screen.blit(botao_voltar, voltar_position)
 			pygame.display.update()
 
 #opcoes()					

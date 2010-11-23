@@ -20,25 +20,18 @@ som_helicoptero = pygame.mixer.music.load("music" + sep + "som_helicopter.mp3")
 som_helicoptero = pygame.mixer.music.play(-1)
 
 
-#DEFINICAO ICONE
-#icon = pygame.image.load('imagens' + sep + 'menu' + sep + 'icone.bmp')
-#pygame.display.set_icon(icon)
-
 #DEFINICAO VIDEO
 video_introducao = pygame.movie.Movie('videos' + sep + 'inicio2_menu.mpg')
 video_introducao.play()
 
 while True:
 	for event in pygame.event.get():
-			if event.type == QUIT:
-				exit()
-
-	#Chamada das teclas
-	pressed_keys = pygame.key.get_pressed()
-	
-	if pressed_keys[K_RETURN] or pressed_keys[K_KP_ENTER]:
-		video_introducao.stop()
-		som_menu = pygame.mixer.music.stop()
-		som_helicoptero = pygame.mixer.music.stop()
-		menu()
+		if event.type == QUIT:
+			exit()
+				
+		if event.type is KEYDOWN:
+			video_introducao.stop()
+			som_menu = pygame.mixer.music.stop()
+			som_helicoptero = pygame.mixer.music.stop()
+			menu()
 		
