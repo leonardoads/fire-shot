@@ -17,7 +17,7 @@ class Leon(Personagem):
 	def colide_tela(self):
 		if self.rect[0]	< 0: 
 			self.atualiza_posicao(0,480)
-			self.image = self.image = self.imagem_da_vez[0]
+			self.image =  self.imagem_da_vez[0]
 			
 	def desliza_cima(self,seletor_image_leon):
 		if self.rect[1] > 422:

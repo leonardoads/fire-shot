@@ -6,12 +6,17 @@ from sys import exit
 from pygame.locals import *
 from os import sep
 from menu import *
+from tela import *
+
 screen_width, screen_height = 800,600
 
 pygame.init()
+arquivo = open('tipo_tela.fs')
+tipo_tela = arquivo.read().strip()
+arquivo.close()
+
 #DEFINICAO DA TELA
-screen = pygame.display.set_mode((screen_width,screen_height), FULLSCREEN, 32)
-pygame.display.set_caption("Fire shot")
+tela = Tela("menu","menu.jpg", tipo_tela)
 
 #DEFINICAO DO SOM
 som_menu = pygame.mixer.music.load("music" + sep + "som_menu.mp3")

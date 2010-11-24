@@ -3,9 +3,10 @@ from sys import exit
 from pygame.locals import *
 from os import sep
 class Tela:
-	def __init__(self, pasta, imagem):
+	def __init__(self, pasta, imagem, tipo):
+		self.tipo = {'FULLSCREEN': FULLSCREEN, "0": 0}
 		self.screen_width, self.screen_height = 800,600
-		self.screen = pygame.display.set_mode((self.screen_width,self.screen_height), FULLSCREEN, 32)
+		self.screen = pygame.display.set_mode((self.screen_width,self.screen_height), self.tipo[tipo], 32)
 		pygame.display.set_caption("Fire shot")
 		self.background = pygame.image.load('imagens'+ sep + pasta + sep + imagem).convert()
 		self.background_size = self.background.get_size()

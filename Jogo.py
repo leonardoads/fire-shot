@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # *-* coding: utf-8 *-*
 #imports
-""" Metas
-MELHORAR O CODIGO POIS ESTA MUITO REPETITIVO E COMPLEXO"""
+
 import pygame
 from sys import exit
 from pygame.locals import *
@@ -10,19 +9,16 @@ from os import sep
 from leon import *
 from inimigo import *
 from tela import *
-
-class Tiro (pygame.sprite.Sprite):
-	def __init__(self, leon_rect):
-		self.leon = Leon()
-		self.sprite = pygame.sprite.Sprite()
-		self.direcao = ('normal','cima')
-		self.image_tiro = pygame.image.load('imagens' + sep + 'tiro' + sep + 'bala.png').convert_alpha()		
-
+from tiro import *
 
 def main():
+	arquivo = open('tipo_tela.fs')
+	tipo_tela = arquivo.read().strip()
+	arquivo.close()
+	
 	pygame.init()
 	
-	tela = Tela("fase1","fundo_fase1_0.png")
+	tela = Tela("fase1","fundo_fase1_0.png", tipo_tela)
 	
 	#Definicao de Leon	
 	leon = Leon()
@@ -32,17 +28,17 @@ def main():
 	controle_velocidade_troca_imagens = 0
 	
 	#definicao inimigo
-	inimigo = Inimigo()
+	lista_inimigos = [Inimigo() for i in xrange(10)]
+	inimigo = lista_inimigos[0]
 	inimigo.atualiza_posicao(750, 480)
 	seletor_imagem_inimigo = 0
+	inimigo.morreu = False
 	mor = False
 	novo_inimigo, novo_inimigo_heli = 0, 0
+	inimigos_mortos = 0
 	
-	#definicao do Tiro
-	tiro = Tiro(leon.rect)
-	tiro.image = tiro.image_tiro
-	fogo_tiro = pygame.image.load('imagens' + sep + 'tiro' + sep + 'tiro1.png').convert_alpha()
-	fogo_position = (leon.rect[0],leon.rect[1]+43)
+	#definicao do Tiro DE LEON
+	leon_tiro = Tiro(leon.rect)
 	som_tiro = pygame.mixer.Sound("soms" + sep + "tiro.wav")
 	atirar = False
 	
@@ -50,6 +46,7 @@ def main():
 	desliza_cima = False
 	desliza_baixo = False
 	while True:
+		#inimigo.atualiza_posicao(750, 480)
 		leon.colide_tela()
 		for event in pygame.event.get():
 			if event.type is pygame.QUIT:
@@ -63,22 +60,21 @@ def main():
 		clock = pygame.time.Clock()
 		clock.tick(60)
 		
-		#Controla a posicao da bala para que ela sempre fique proxima da arma
-	
-		fogo_position = (leon.rect[0]+80,leon.rect[1]+39)
+		#Controla a posicao do fogo para que fique sempre proximo a leon
+		leon_tiro.fogo_rect = [leon.rect[0]+80,leon.rect[1]+39]
 		
-		if atirar == True:
-			tiro.rect[0] = tiro.rect[0]+50
-		else:
-			tiro.rect = [leon.rect[0]+80,leon.rect[1]+43]
+		#ATIRA: FAZ COM QUE TANTO LEON COMO O INIMIGO ATIRE
+		leon_tiro.atira('RIGHT')
 			
-		if atirar and tiro.rect[0] > 800:
-			atirar = False
-		if mor == True and novo_inimigo % 100 == 0:
-			x1,y1 = 750, 450
-			mor = False
 		
+		if leon_tiro.atirar and leon_tiro.rect[0] > 800:
+			leon_tiro.rect = [leon.rect[0]+80,leon.rect[1]+43]
+			leon_tiro.atirar = False
+			
+		if inimigo.morreu == True :
+			inimigo.morreu = False
 		
+		inimigo.colide_tela()
 		#Chamada das teclas
 		pressed_keys = pygame.key.get_pressed()
 		
@@ -99,7 +95,7 @@ def main():
 			
 		#controla o movimento de Leon
 		if pressed_keys[K_RIGHT]:
-			fogo_position = (leon.rect[0]+85,leon.rect[1]+25)
+			leon_tiro.fogo_rect = (leon.rect[0]+85,leon.rect[1]+25)
 			if leon.rect[0] > 400 and tela.background_position[0] > -7200:
 				tela.movimenta_background()
 				leon.anda('tImage', seletor_image_leon)
@@ -117,37 +113,39 @@ def main():
 
 		elif pressed_keys[K_UP]:
 			leon.desliza_cima (seletor_image_leon)
-			#desliza_baixo = False
 			
 		elif pressed_keys[K_DOWN]:
 			leon.desliza_baixo (seletor_image_leon)
-			#desliza_cima = False		
 			
 		else:
 			seletor_image_leon = 0 
 			leon.anda()
 		if pressed_keys[K_p]:
-			atirar = True
+			leon_tiro.atirar = True
 			som_tiro.play()
 		
 		
-		if atirar and pygame.sprite.collide_mask(tiro, inimigo) :
-			inimigo.atualiza_posicao(750, 480)
-			mor = True
-		
-		
+		if leon_tiro.atirar and pygame.sprite.collide_mask(leon_tiro, inimigo):
+			print '1'
+			inimigo.morre()
+			inimigo.morreu = True
+			inimigos_mortos += 1
+					
 		tela.screen.fill((0,0,0))
 		#colocacao da imagem de fundo na tela
 		tela.screen.blit(tela.background, tela.background_position)
 		
 		#colocacao dos personagens na tela
-		tela.screen.blit(leon.image, leon.rect)
-		if (mor == False):
+		
+		
+		if inimigo.morreu == False and inimigos_mortos < 100:
+			#print inimigo.rect
 			tela.screen.blit(inimigo.image,inimigo.rect)
+		tela.screen.blit(leon.image, leon.rect)
 			
-		if atirar and tiro.rect[0] < 800:
-			tela.screen.blit(tiro.image , tiro.rect)
-			tela.screen.blit(fogo_tiro , fogo_position)
+		if leon_tiro.atirar and leon_tiro.rect[0] < 800:
+			tela.screen.blit(leon_tiro.image , leon_tiro.rect)
+			tela.screen.blit(leon_tiro.image_fogo , leon_tiro.fogo_rect)
 			
 		
 		#atualiza a tela

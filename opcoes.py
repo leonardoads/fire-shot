@@ -1,9 +1,3 @@
-#Chamada das teclas
-#	pressed_keys = pygame.key.get_pressed()
-#	opcao_image = pygame.image.load('imagens'+sep+'opcoes'+sep+"opcoes.jpg")
-#	screen.blit(opcao_image, (x,y))
-#					pygame.display.update()
-					
 import pygame
 from sys import exit
 from pygame.locals import *
@@ -13,60 +7,49 @@ from tela import *
 screen_width, screen_height = 800,600
 
 def opcoes():
+	arquivo = open('tipo_tela.fs','rw')
+	tipo_tela = arquivo.read().strip()
 	pygame.init()
 	x = 0
 	tipo = 0
-	tela = Tela("opcoes","image_opcoes.jpg")
+	tela = Tela("opcoes","image_opcoes.jpg", tipo_tela)
 	##DEFINICAO DA TELA
-	##def tipo_tela(tipo):
-	##	global screen
-	#screen = pygame.display.set_mode((screen_width,screen_height), tipo, 32)
-	#pygame.display.set_caption("Fire shot")
-	##tipo_tela(tipo)
 	
 	#Palavras a ser impressas
-	tipo_tela = pygame.image.load('imagens'+ sep +"opcoes" + sep + "tipo_tela.png")
+	tipo_tela = pygame.image.load('imagens'+ sep +"opcoes" + sep + "tela_cheia.png")
 	volume = pygame.image.load('imagens'+ sep +"opcoes" + sep + "Volume.png")
-	
-	#definicao da imagem de fundo
-	
-	#fundo_opcoes = pygame.image.load('imagens'+ sep +"opcoes" + sep + "image_opcoes.jpg")
-	icon = pygame.image.load('imagens'+ sep +"menu" + sep + "icon.bmp")
-	pygame.display.set_icon(icon)
-	#fundo_opcoes_size = fundo_opcoes.get_size()
-	#fundo_opcoes_position = (screen_width/2) - (fundo_opcoes_size[0]/2), (screen_height/2) - (fundo_opcoes_size[1]/2)
 
 	#DEFINICOES DOS BOTOES DO OPCOES
 	#definicao do botao voltar
-	botoes_voltar = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "voltar" + str(i) + \
+	botoes_voltar = [pygame.image.load("imagens" + sep+ 'botoes'+ sep + "botao_voltar" + str(i) + \
 	".png").convert_alpha() for i in xrange(2)]
 	botao_voltar = botoes_voltar[0]
 	voltar_size = botao_voltar.get_size()
 	voltar_position = (100,500)
 
 	#definicao do botao de volume mais
-	botoes_mais = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "+" + str(i) + \
+	botoes_mais = [pygame.image.load("imagens" + sep+ 'botoes'+ sep + "botao_vol_max" + str(i) + \
 	".bmp").convert_alpha() for i in xrange(3)]
 	botao_mais = botoes_mais[0]
 	mais_size = botao_mais.get_size()
 	mais_position = (590,310)
 	
 	#definicao do botao de volume mais
-	botoes_menos = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "-" + str(i) + \
+	botoes_menos = [pygame.image.load("imagens" + sep+ 'botoes'+ sep + "botao_vol_min" + str(i) + \
 	".bmp").convert_alpha() for i in xrange(3)]
 	botao_menos = botoes_menos[0]
 	menos_size = botao_menos.get_size()
 	menos_position = (460,310)
 	
 	#definicao do anime volume
-	animes_volume = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "Volume_" + str(i) + \
+	animes_volume = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "select_volume_" + str(i) + \
 	".png").convert_alpha() for i in xrange(3)]
 	anime_volume = animes_volume[1]
 	anime_volume_size = anime_volume.get_size()
 	anime_volume_position = (500,260)
 	
 	#definicao botao tela cheia
-	botoes_tela = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "selecionado_" + str(i) + \
+	botoes_tela = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "tela_cheia_select" + str(i) + \
 	".png").convert_alpha() for i in xrange(2)]
 	botao_escolha_tela = botoes_tela[1]
 	botao_escolha_tela_size = botao_escolha_tela.get_size()
@@ -127,16 +110,30 @@ def opcoes():
 					else:
 						botao_escolha_tela = botoes_tela[0]
 					if botao_escolha_tela == botoes_tela[1]:
+						arquivo = open('tipo_tela.fs','w+')
+						arquivo.write('FULLSCREEN')
+						arquivo.close()
+						tela.sair_fullsreen()
 						tela.fullscreen()
+						
 					else:
+						arquivo = open('tipo_tela.fs','w+')
+						arquivo.write('0')
+						arquivo.close()
 						tela.sair_fullsreen()
 				
 			else: botao_voltar = botoes_voltar[0]
 			if pressed_keys[K_F11]:
 					x += 1
 					if x % 5 == 0:
+						arquivo = open('tipo_tela.fs','w+')
+						arquivo.write('FULLSCREEN')
+						arquivo.close()
 						tela.fullscreen()
 					else:
+						arquivo = open('tipo_tela.fs','w+')
+						arquivo.write('FULLSCREEN')
+						arquivo.close()
 						tela.sair_fullsreen()
 			
 			#escolha do botao voltar	
@@ -145,6 +142,7 @@ def opcoes():
 				botao_voltar = botoes_voltar[1]
 				
 				if mouse_pressionado[0] or pressed_keys[K_v]:
+					arquivo.close()
 					break
 				
 			else: botao_voltar = botoes_voltar[0]

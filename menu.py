@@ -8,15 +8,19 @@ from os import sep
 import Jogo
 from tela import *
 from opcoes import *
+
 #tela.screen_width, tela.screen_height = 800,600
 def load ():
 	pass
 	
 
 def menu():
+	arquivo = open('tipo_tela.fs')
+	tipo_tela = arquivo.read().strip()
+	arquivo.close()
 	pygame.init()
 	#definicao da Tela
-	tela = Tela("menu","menu.jpg")
+	tela = Tela("menu","menu.jpg", tipo_tela)
 
 	#definicao imagem de creditos
 	cred = pygame.image.load("imagens" + sep + "creditos" + sep + "creditos.png").convert_alpha()

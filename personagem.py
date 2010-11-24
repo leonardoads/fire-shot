@@ -2,13 +2,14 @@ import pygame
 from sys import exit
 from pygame.locals import *
 from os import sep
-class Personagem:
+from tiro import *
+class Personagem :
 	images = []
 	seletor_imagens = 0
 	imagem_da_vez = []
 	seletor_mira = -1
-	#imagens_mira = ['normal', 'cima']
 	imagens_mira = []
+	morreu = False
 	
 	def __init__(self):
 		self.personagem =  pygame.sprite.Sprite()
@@ -27,3 +28,9 @@ class Personagem:
 				pass		
 		else:
 			self.image = self.imagem_da_vez[0]
+	def morreu(self):
+		self.morreu == False
+		
+	def renasce(self):
+		self.morreu == True
+
