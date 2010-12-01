@@ -8,6 +8,7 @@ from os import sep
 import Jogo
 from tela import *
 from opcoes import *
+
 #tela.screen_width, tela.screen_height = 800,600
 def load ():
 	pass
@@ -182,4 +183,7 @@ def menu():
 		if creditos == True:
 			tela.screen.blit(cred, (90,200))
 		pygame.display.update()
-#menu()
+
+if __name__ == '__main__':
+	
+	menu()

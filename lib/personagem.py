@@ -33,4 +33,4 @@ class Personagem :
 		
 	def renasce(self):
 		self.morreu == True
-
+		

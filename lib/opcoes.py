@@ -1,9 +1,3 @@
-#Chamada das teclas
-#	pressed_keys = pygame.key.get_pressed()
-#	opcao_image = pygame.image.load('imagens'+sep+'opcoes'+sep+"opcoes.jpg")
-#	screen.blit(opcao_image, (x,y))
-#					pygame.display.update()
-					
 import pygame
 from sys import exit
 from pygame.locals import *
@@ -13,7 +7,7 @@ from tela import *
 screen_width, screen_height = 800,600
 
 def opcoes():
-	arquivo = open('tipo_tela.fs','r')
+	arquivo = open('tipo_tela.fs','rw')
 	tipo_tela = arquivo.read().strip()
 	pygame.init()
 	x = 0
