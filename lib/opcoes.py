@@ -3,13 +3,18 @@ from sys import exit
 from pygame.locals import *
 from os import sep
 from tela import *
-
+from instrucoes import *
 screen_width, screen_height = 800,600
 
+
 def opcoes():
-	arquivo = open('tipo_tela.fs','rw')
+	arquivo = open('tipo_tela.fs','r')
 	tipo_tela = arquivo.read().strip()
-	pygame.init()
+	pygame.init() 
+	arq_vol = open('volume.fs','r')
+	imag_vol = int(arq_vol.read().strip())
+	#arq_vol.close()
+	
 	x = 0
 	tipo = 0
 	tela = Tela("opcoes","image_opcoes.jpg", tipo_tela)
@@ -20,6 +25,13 @@ def opcoes():
 	volume = pygame.image.load('imagens'+ sep +"opcoes" + sep + "Volume.png")
 
 	#DEFINICOES DOS BOTOES DO OPCOES
+	#definicao do botao instrucoes
+	botoes_instrucao = [pygame.image.load("imagens" + sep+ 'botoes'+ sep + "botao_instrucoes" + str(i) + \
+	".png").convert_alpha() for i in xrange(2)]
+	botao_instrucao = botoes_instrucao[0]
+	instrucao_size = botao_instrucao.get_size()
+	instrucao_position = (300,200)
+	
 	#definicao do botao voltar
 	botoes_voltar = [pygame.image.load("imagens" + sep+ 'botoes'+ sep + "botao_voltar" + str(i) + \
 	".png").convert_alpha() for i in xrange(2)]
@@ -44,7 +56,7 @@ def opcoes():
 	#definicao do anime volume
 	animes_volume = [pygame.image.load("imagens" + sep+ 'opcoes'+ sep + "select_volume_" + str(i) + \
 	".png").convert_alpha() for i in xrange(3)]
-	anime_volume = animes_volume[1]
+	anime_volume = animes_volume[imag_vol]
 	anime_volume_size = anime_volume.get_size()
 	anime_volume_position = (500,260)
 	
@@ -55,14 +67,18 @@ def opcoes():
 	botao_escolha_tela_size = botao_escolha_tela.get_size()
 	botao_escolha_tela_position = (450,400)
 	
-	
+	#definicao musica
+	pressed_keys = pygame.key.get_pressed()
+	musica = pygame.mixer.music.load("music" + sep + "music1.mp3")
+	musica = pygame.mixer.music.play(-1)
 	
 	contador = 0
 	while True:
+			anime_volume = animes_volume[imag_vol]
 			contador += 1
 			for event in pygame.event.get():
 					if event.type == QUIT:
-							exit
+							exit()
 			#Chamada das teclas
 			pressed_keys = pygame.key.get_pressed()
 			
@@ -80,11 +96,19 @@ def opcoes():
 				if mouse_pressionado[0]:
 					botao_mais = botoes_mais[2]
 					if not anime_volume == animes_volume[2]  and contador % 10 == 0:
-						if anime_volume == animes_volume[1]:
-							anime_volume = animes_volume[2]
+						if imag_vol == 1:
+							imag_vol = 2
 						else:
-							anime_volume = animes_volume[1]
+							imag_vol = 1
 			else: botao_mais = botoes_mais[0]
+			
+			if anime_volume == animes_volume[0]:
+				pygame.mixer.music.set_volume(0.2)
+			elif anime_volume == animes_volume[1]:
+				pygame.mixer.music.set_volume(0.5)
+			else:
+				pygame.mixer.music.set_volume(1.0)
+			
 			
 			#escolha do botao volume menos	
 			if menos_position[0] <= mouse_position[0] <= menos_position[0] + menos_size[0] \
@@ -94,10 +118,10 @@ def opcoes():
 				if mouse_pressionado[0]:
 					botao_menos = botoes_menos[2]
 					if not anime_volume == animes_volume[0] and contador % 10 == 0:
-						if anime_volume == animes_volume[1]:
-							anime_volume = animes_volume[0]
+						if imag_vol == 1:
+							imag_vol = 0
 						else:
-							anime_volume = animes_volume[1]
+							imag_vol = 1
 			else: botao_menos = botoes_menos[0]
 			
 			#escolha do botao escolha da tela
@@ -122,7 +146,9 @@ def opcoes():
 						arquivo.close()
 						tela.sair_fullsreen()
 				
-			else: botao_voltar = botoes_voltar[0]
+			#else: botao_voltar = botoes_voltar[0]
+			if pressed_keys[K_i]:
+				instrucoes()
 			if pressed_keys[K_F11]:
 					x += 1
 					if x % 5 == 0:
@@ -143,9 +169,21 @@ def opcoes():
 				
 				if mouse_pressionado[0] or pressed_keys[K_v]:
 					arquivo.close()
+					arq_vol = open('volume.fs','w+')
+					arq_vol.write(str(imag_vol))
+					arq_vol.close()
 					break
-				
 			else: botao_voltar = botoes_voltar[0]
+			
+			#escolha do botao instrucao	
+			if instrucao_position[0] <= mouse_position[0] <= instrucao_position[0] + instrucao_size[0] \
+			and instrucao_position[1] <= mouse_position[1] <= instrucao_position[1] + instrucao_size[1]or pressed_keys[K_v]:
+				botao_instrucao = botoes_instrucao[1]
+				
+				if mouse_pressionado[0] or pressed_keys[K_v]:
+					instrucoes()
+				
+			else: botao_instrucao = botoes_instrucao[0]
 
 			
 			tela.screen.blit(tela.background , tela.background_position)
@@ -155,6 +193,7 @@ def opcoes():
 			tela.screen.blit(botao_mais, mais_position)
 			tela.screen.blit(botao_menos, menos_position)
 			tela.screen.blit(botao_escolha_tela, botao_escolha_tela_position)
+			tela.screen.blit(botao_instrucao, instrucao_position)
 			tela.screen.blit(botao_voltar, voltar_position)
 			pygame.display.update()
 

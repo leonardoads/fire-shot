@@ -65,7 +65,7 @@ def pausa():
 				botao_menu = botoes_menu[1]
 				
 				if mouse_pressionado[0]:
-					menu()
+					return 'menu'
 				
 			else: botao_menu = botoes_menu[0]
 			

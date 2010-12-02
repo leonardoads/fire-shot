@@ -15,6 +15,9 @@ class Leon(Personagem):
 		self.controlador_pulo = 'sob'
 		self.posicao = 'cima'
 		self.collide_direction = None
+		self.cima_obstaculo = False
+		self.pontuacao = 0
+		
 		#self.y_inicial = self.rect[1]
 	def troca_imagem_mira(self):
 		self.seletor_mira += 1
@@ -22,21 +25,15 @@ class Leon(Personagem):
 		self.image = self.imagem_da_vez[0]
 		self.tamanho = self.image.get_size()
 	
-	def retangulos(self):
-		self.retangulo = pygame.Rect(self.rect[0],self.rect[1],self.image.get_size()[0],self.image.get_size()[1])
+	
 	def colide_tela(self):
 		if self.rect[0]	< 0: 
 			self.atualiza_posicao(0,self.rect[1])
 			self.image =  self.imagem_da_vez[0]
-	def colide(self, direction):
-		pass	
-	def direcao_colide(self,objeto_rect,):
-		if self.tamanho[0] < objeto_rect[0]:
-			self.collide_direcao = 'direita'
-		if self.tamanho[0] > objeto_rect[0] :
-			self.collide_direction = 'esquerda'
-		if self.tamanho[1] < objeto_rect[1]:
-			self.collide_direction = 'cima'
+	def collide_obstaculo(self, local):
+		self.cima_obstaculo = local
+		
+	
 				
 	def desliza_cima(self,seletor_image_leon):
 		if self.rect[1] > 390:
@@ -78,8 +75,11 @@ class Leon(Personagem):
 		self.vida -= 1
 	
 	def gameOver(self):
-		
 		if self.vida < 0:
 			self.game_over = True
 			print self.vida, self.game_over
+	
+	def pontua(self):
+		self.pontuacao += 10
+		
 	

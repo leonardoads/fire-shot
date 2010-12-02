@@ -1,269 +1,320 @@
 #!/usr/bin/env python
 # *-* coding: utf-8 *-*
 #imports
-""" Metas
-MELHORAR O CODIGO POIS ESTA MUITO REPETITIVO E COMPLEXO"""
+
 import pygame
 from sys import exit
 from pygame.locals import *
 from os import sep
-#define a  inicializaçao da tela
-class Tela:
-	def __init__(self):
-		self.screen_width, self.screen_height = 800,600
-		self.screen = pygame.display.set_mode((self.screen_width,self.screen_height), 0, 32)
-		pygame.display.set_caption("Fire shot")
-		self.background = pygame.image.load('imagens'+ sep +"fase2" + sep + "caminho2.png").convert_alpha()
-		self.background_size = self.background.get_size()
-		self.background_position= [0,0]
-class Leon(pygame.sprite.Sprite):
-	images = []
-	def __init__(self):
-		self.leon =  pygame.sprite.Sprite()
-		self.posicoes = ['up','left', 'right', 'down']
-		self.images_mira_normal = [pygame.image.load('imagens' + sep + 'leon' + sep + 'leon' + str(i) + '.png').convert_alpha() for i in xrange(7)]
-		self.images_mira_cima = [pygame.image.load('imagens' + sep + 'leon' + sep + 'leon' + str(i) + '.png').convert_alpha() for i in xrange(7,14)]
-			
-		
-class Inimigo(pygame.sprite.Sprite):
-	def __init__(self):
-		self.sprite = pygame.sprite.Sprite()
-		
-class Tiro (pygame.sprite.Sprite):
-	def __init__(self, leon_rect):
-		self.leon = Leon()
-		self.sprite = pygame.sprite.Sprite()
-		self.direcao = ('normal','cima')
-		self.image_tiro = pygame.image.load('imagens' + sep + 'tiro' + sep + 'bala.png').convert_alpha()		
+from leon import *
+from inimigo import *
+from tela import *
+from tiro import *
+from game_over import *
+from obstaculos import *
+from pausa import *
+from bonus import *
+from passou_fase2 import *
 
+#from   import *
 
-def main():
+def obstaculo_type1(pedra, background_position):
+	pedra_position = [background_position[0] + 1000, background_position[1] + 535]
+	#tela.screen.blit(pedra,pedra_position)
+	global ret_pedra1type1
+	ret_pedra1type1 = pygame.Rect(pedra_position[0],pedra_position[1] + 80,pedra.get_size()[0]-60,pedra.get_size()[1])
+	global ret_pedra1type2
+	ret_pedra1type2 = pygame.Rect(pedra_position[0]+60,pedra_position[1] + 80,pedra.get_size()[0]-60,pedra.get_size()[1])
+	global ret_pedra1
+	ret_pedra1 = pygame.Rect(pedra_position[0],pedra_position[1]+50,pedra.get_size()[0],pedra.get_size()[1])
+	global ret_pedra1_sobre
+	ret_pedra1_sobre = pygame.Rect(pedra_position[0],pedra_position[1]+10,pedra.get_size()[0],pedra.get_size()[1])
+	return (pedra,pedra_position)
+	
+def obstaculo_type2(pedra, background_position):
+	pedra_position = [background_position[0] + 3000, background_position[1] + 430]
+	if pedra_position[0] < 0:
+		pedra_position[0] += 1400
+	#tela.screen.blit(pedra,pedra_position)
+	global ret_pedra2type1
+	ret_pedra2type1 = pygame.Rect(pedra_position[0],pedra_position[1]-100,pedra.get_size()[0]-60,pedra.get_size()[1]-20)
+	global ret_pedra2type2
+	ret_pedra2type2 = pygame.Rect(pedra_position[0]+60,pedra_position[1]-100,pedra.get_size()[0]-60,pedra.get_size()[1]-20)
+	global ret_pedra2
+	ret_pedra2 = pygame.Rect(pedra_position[0],pedra_position[1]-100,pedra.get_size()[0],pedra.get_size()[1]+10)
+	global ret_pedra2_sobre
+	ret_pedra2_sobre = pygame.Rect(pedra_position[0],pedra_position[1]+10,pedra.get_size()[0],pedra.get_size()[1])
+	return(pedra, pedra_position)
+	
+def Fase2():
+	#Abre o arquivo que contem as imformacoes sobre tela Cheia
+	arquivo = open('tipo_tela.fs')
+	tipo_tela = arquivo.read().strip()
+	arquivo.close()
+	
+	# Iniciliza os modulos do pygame 
 	pygame.init()
 	
-	tela = Tela()
-	
+	#Define a Tela 
+	tela = Tela("fase2",'2.png', tipo_tela)
+	tela.background_position= [-10,-30]
+	paisagem = pygame.image.load("imagens"+sep+"fase2"+sep+"fundo_fase2.jpg")
 	#Definicao de Leon	
 	leon = Leon()
-	lista_leon_mira_normal = leon.images_mira_normal
-	lista_leon_mira_cima =leon.images_mira_cima
-	lista_imagem_leon_vez = lista_leon_mira_normal
-	leon.image = lista_imagem_leon_vez[0]
-	leon.rect = [0,480]
-	seletor_image_leon = 0
-	seletor_lista_imagem_da_vez = 'normal'
+	leon.troca_imagem_mira()
+	leon.atualiza_posicao(0,390)
+	seletor_image_leon = 1
 	controle_velocidade_troca_imagens = 0
-	#definicao inimigo
+	direita = False
+	esquerda = False
+	cima = False
+	#Definicao dos Inimigos
 	inimigo = Inimigo()
-	lista_imagem_inimigo = [pygame.image.load('imagens' + sep + 'inimigo' + sep + 'inimigo_'+ str(i) + '.png') for i in xrange(6)]
-	inimigo.rect = [750, 480]
+	inimigo.atualiza_posicao(750, 490)
 	seletor_imagem_inimigo = 0
-	mor = False
-	novo_inimigo, novo_inimigo_heli = 0, 0
+	inimigo.morreu = False
+	inimigos_mortos = 0
 	
-	#definicao do Tiro
-	tiro = Tiro(leon.rect)
-	tiro.image = tiro.image_tiro
-	fogo_tiro = pygame.image.load('imagens' + sep + 'tiro' + sep + 'tiro1.png').convert_alpha()
-	fogo_position = (leon.rect[0],leon.rect[1]+43)
+	#definicao do Tiro dos Personagens
+	leon_tiro = Tiro(leon.rect)
+	direcao_tiro = 'normal'
+	inimigo_tiro = Tiro(inimigo.rect)
+	inimigo_tiro.atirar = True
 	som_tiro = pygame.mixer.Sound("soms" + sep + "tiro.wav")
 	atirar = False
 	
 	#verifica se o boneco deve se deslocar pra cima ou pra baixo
 	desliza_cima = False
 	desliza_baixo = False
-	
 	#DEFINICAO OBSTACULOS:
-	pedra = pygame.image.load("imagens"+sep+"imagens"+sep+"pedra2.bmp")
+	pedra = pygame.image.load("imagens"+sep+"imagens"+sep+"pedra2.png")
 	ponte = pygame.image.load("imagens"+sep+"imagens"+sep+"ponte1.png")
-	def obstaculo_type1(pedra):
-		pedra_position = [tela.background_position[0] + 600,tela.background_position[1] + 500]
-		if pedra_position[0] < 0:
-			pedra_position[0] += 1000
-		tela.screen.blit(pedra,pedra_position)
-		global ret_pedra1
-		ret_pedra1 = pygame.Rect(pedra_position[0],pedra_position[1] + 100,pedra.get_size()[0],pedra.get_size()[1])
-	def obstaculo_type2(pedra):
-		pedra_position = [tela.background_position[0] + 1000,tela.background_position[1] + 450]
-		tela.screen.blit(pedra,pedra_position)
-		global ret_pedra2
-		ret_pedra2 = pygame.Rect(pedra_position[0],pedra_position[1]-100,pedra.get_size()[0],pedra.get_size()[1])
-	def ponte1(ponte):
-		ponte_position = [tela.background_position[0] + 2000,tela.background_position[1] + 410]
-		tela.screen.blit(ponte,ponte_position)
-		global ret_ponte1
-		ret_ponte1 = pygame.Rect(ponte_position[0],ponte_position[1] - 100,ponte.get_size()[0],ponte.get_size()[1])
-	image_fundo = pygame.image.load('imagens'+ sep +"fase2" + sep + "fundo_fase2.jpg").convert()
-	image_fundo_position = [-470,0]
+	
+	pular = False
+	contador_pulo = 0
+	pontuacao = 0
+	bonus = Bonus('bonus', 'maca_verde_10.png')
+	bonus_aparece = True
+	bonus_pontos = Bonus('bonus', 'maca_verde_10.png')
+	bonus_pontos_aparece = True
+	
 	while True:
-		obstaculo_type2(pedra)
-		obstaculo_type1(pedra)
-		ponte1(ponte)
-		ret_player = pygame.Rect(leon.rect[0],leon.rect[1],leon.image.get_size()[0],leon.image.get_size()[1])
-		lista_ret = [ret_pedra1,ret_pedra2,ret_ponte1]
+		clock = pygame.time.Clock()
+		clock.tick(500)
 		for event in pygame.event.get():
 			if event.type is pygame.QUIT:
 				exit()
-			if event.type is KEYDOWN:
-				if pressed_keys[K_o]:
-					if seletor_lista_imagem_da_vez == 'normal':
-						lista_imagem_leon_vez = lista_leon_mira_cima
-						leon.image = lista_imagem_leon_vez[0]
-						seletor_lista_imagem_da_vez = 'cima'
-					elif seletor_lista_imagem_da_vez == 'cima':			
-						lista_imagem_leon_vez = lista_leon_mira_normal
-						leon.image = lista_imagem_leon_vez[0]
-						seletor_lista_imagem_da_vez = 'normal'
-		#controla a velocidade do jogo
-		clock = pygame.time.Clock()
-		clock.tick(60)
-		
-		#Controla a posicao da bala para que ela sempre fique proxima da arma
-	
-		fogo_position = (leon.rect[0]+80,leon.rect[1]+39)
-		
-		if atirar == True:
-			tiro.rect[0] = tiro.rect[0]+50
-		else:
-			tiro.rect = [leon.rect[0]+80,leon.rect[1]+43]
 			
-		if atirar and tiro.rect[0] > 800:
-			atirar = False
-		if mor == True and novo_inimigo % 100 == 0:
-			x1,y1 = 750, 450
-			mor = False
+			if event.type is KEYDOWN:
+				if event.key == K_o:
+					leon.troca_imagem_mira()
+					leon_tiro.troca_direcao_tiro()
 		
+		if  tela.background_position[0] < -7100:
+			passa_fase2()
+			break 
 		
-		#Chamada das teclas
-		pressed_keys = pygame.key.get_pressed()
-		#controla a imagem a ser usada no  movimento de Leon
+		###########Variaveis que devem ser atualizadas em cada laço#######
+		# criacao dos obstaculos		
+		obstaculo1 = obstaculo_type2(pedra, tela.background_position)
+		obstaculo2 = obstaculo_type1(pedra, tela.background_position)
+		
+		if bonus_aparece == True:
+			bonus.atualiza_posicao(tela.background_position[0]+1800,tela.background_position[1]+300 )
+		if bonus_pontos_aparece == True:
+			bonus_pontos.atualiza_posicao(obstaculo2[1][0]+50 , obstaculo2[1][1] )
+			
+		#Criacao das listas de retangulos dos obstaculos
+		ret_player = pygame.Rect(leon.rect[0],leon.rect[1],leon.image.get_size()[0],leon.image.get_size()[1])		
+		lista_ret_frente = [ret_pedra1type1,ret_pedra2type1]
+		lista_ret_left = [ret_pedra2type2,ret_pedra1type2]
+		lista_ret_up = [ret_pedra2]
+		lista_ret_down = [ret_pedra1]
+		lista_ret_sobre_type1 = [ret_pedra1_sobre,ret_pedra2_sobre]
+		
+		#verifica se os personagens chegaram ao limite da tela
+		leon.colide_tela()
+		inimigo.colide_tela()
+		
+		pontuacao = "Score:%04i         vidas: %02i"%(leon.pontuacao, leon.vida)
+		tela.imprime_texto(pontuacao, tamanho = 30)
+		
+		#Controla a posicao do fogo para que fique sempre proximo a leon
+		leon_tiro.fogo_rect = [leon.rect[0]+80,leon.rect[1]+39]
+		
+		#ATIRA: FAZ COM QUE TANTO LEON COMO O INIMIGO ATIRE
+		leon_tiro.atira('RIGHT')
+		inimigo_tiro.atira('LEFT')
+				
+		if inimigo_tiro.atirar == False: 
+			inimigo_tiro.atirar	= True
+		if leon_tiro.atirar and leon_tiro.rect[0] > 800:
+			leon_tiro.rect = [leon.rect[0]+80,leon.rect[1]+43]
+			leon_tiro.atirar = False
+		if inimigo_tiro.atirar and inimigo_tiro.rect[0] < 0:
+			inimigo_tiro.atirar	= False
+			
+		if inimigo.morreu == True and inimigos_mortos < 10:
+			inimigo.morreu = False
+			
+		#Verifica se as vidas de Leon se encerraram
+		leon.gameOver()	
+		# .encontra_ ()
+		#controladores do pulo
+		leon.alterna_posicao()	
+		
+		if pular == True: leon.collide_obstaculo(True)
+		
+		elif pular == False: leon.collide_obstaculo(False)
+		
+		#controla a imagem a ser usada no  movimento dos Personagens
 		if seletor_image_leon  > 6:
-			seletor_image_leon = 0
+			seletor_image_leon = 1
 		if seletor_imagem_inimigo >5:
 			seletor_imagem_inimigo = 0
 		
-		#controla o deslizar do personagem na tela
-		if desliza_cima and leon.rect[1] > 422:
-			leon.rect[1] -= 10
-		if desliza_baixo and leon.rect[1] < 480:
-			leon.rect[1] += 10
-			
+
 		#define a imagem ,possibilita que se alterne e faz com que o inimigo se movimete
-		inimigo.image = lista_imagem_inimigo[seletor_imagem_inimigo]
-		inimigo.rect[0] -= 5
+		inimigo.image = inimigo.imagem_da_vez[seletor_imagem_inimigo]
+		if inimigo.morreu == False:
+			inimigo.anda('LEFT', seletor_imagem_inimigo)
+			
+		else:
+			inimigo.atualiza_posicao(500,400)
+			
+		#Chamada das teclas
+		pressed_keys = pygame.key.get_pressed()
+		if cima == True:
+			direita = False
+			esquerda = False
+		#inimigo.atualiza_posicao(inimigo.rect[0] -5, inimigo.rect[1])
 		if pressed_keys[K_ESCAPE]:
 			break
-		if pressed_keys[K_RIGHT] and ret_player.collidelist(lista_ret) == -1:
-			fogo_position = (leon.rect[0]+85,leon.rect[1]+25)
-			leon.image = lista_imagem_leon_vez[seletor_image_leon]
-			if leon.rect[0] > 400 and tela.background_position[0] > -7200:
-				tela.background_position[0] -= 10
-			else:
-				leon.rect[0] += 10
+		if pressed_keys[K_PAUSE]:
+			a = pausa()
+			if a == 'menu':
+				break 
 				
-		elif pressed_keys[K_LEFT] and ret_player.collidelist(lista_ret) == -1:
-			fogo_position = (leon.rect[0]+85,leon.rect[1]+25)
-			leon.image = lista_imagem_leon_vez[seletor_image_leon]
-			if leon.rect[0] < 0 and tela.background_position[0] >0:
-				tela.background_position[0] += 10
+		#controla o movimento de Leon
+		if (pressed_keys[K_RIGHT] and ret_player.collidelist(lista_ret_frente) == -1) or (pressed_keys[K_RIGHT] and contador_pulo >= 10):
+			leon_tiro.fogo_rect = (leon.rect[0]+85,leon.rect[1]+25)
+			if leon.rect[0] > 400 and tela.background_position[0] > -7200:
+				tela.movimenta_background()
+				leon.anda('tImage', seletor_image_leon)
 			else:
-				leon.rect[0] -= 10
+				leon.anda('RIGHT', seletor_image_leon)
+				
+		elif (pressed_keys[K_LEFT] and ret_player.collidelist(lista_ret_left) == -1) or (pressed_keys[K_LEFT] and contador_pulo >= 10):
+			fogo_position = (leon.rect[0]+85,leon.rect[1]+25)
+			if leon.rect[0] < 0 and tela.background_position[0] >0:
+				tela.movimenta_background()
+				leon.anda('tImage', seletor_image_leon)
+			else:
+				leon.anda('LEFT', seletor_image_leon)
 
-		elif pressed_keys[K_UP]:
-			desliza_cima = True
-			desliza_baixo = False
+		
+		elif pressed_keys[K_UP] and ret_player.collidelist(lista_ret_up) == -1:
+			leon.desliza_cima (seletor_image_leon)
 			
-		elif pressed_keys[K_DOWN]:
-			desliza_baixo = True
-			desliza_cima = False		
+		elif pressed_keys[K_DOWN] and ret_player.collidelist(lista_ret_down) == -1 and pular == False:
+			leon.desliza_baixo (seletor_image_leon)
 			
 		else:
 			seletor_image_leon = 0 
-			leon.image = lista_imagem_leon_vez[0]
-#		if pressed_keys[K_i] and pressed_keys[K_LEFT] and not pressed_keys[K_RIGHT]:
-#			leon.image = lista_imagem_leon_vez[seletor_image_leon]
-#			cont = 0
-#			for dist in range(25):
-#				leon.rect[1] -= 6
-#				if (leon.rect[0] - 8) >= 0:
-#					leon.rect[0] -= 4
-#				tela.screen.blit(tela.background, tela.background_position)
-#				tela.screen.blit(leon.image, leon.rect)
-#				pygame.display.update()
-#			for dis in range(25):
-#				leon.rect[1] += 6
-#				if (leon.rect[0] - 4) >= 0:
-#					leon.rect[0] -= 4
-#				leon.rect[0] -= 4
-#				tela.screen.blit(tela.background, tela.background_position)
-#				tela.screen.blit(leon.image, leon.rect)
-#				pygame.display.update()
-#			leon.image = lista_imagem_leon_vez[seletor_image_leon]
-#		if pressed_keys[K_i] and not pressed_keys[K_LEFT] and pressed_keys[K_RIGHT]:
-#			leon.image = lista_imagem_leon_vez[seletor_image_leon]
-#			cont = 0
-#			for dist in range(25):
-#				leon.rect[1] -= 6
-#				if (leon.rect[0] + 8) <= 400:
-#					leon.rect[0] += 4
-#				leon.rect[0] += 4
-#				tela.screen.blit(tela.background, tela.background_position)
-#				tela.screen.blit(leon.image, leon.rect)
-#				pygame.display.update()
-#			for dis in range(25):
-#				leon.rect[1] += 6
-#				if (leon.rect[0] + 4) <= 400:
-#					leon.rect[0] += 4
-#				tela.screen.blit(tela.background, tela.background_position)
-#				tela.screen.blit(leon.image, leon.rect)
-#				pygame.display.update()
-#			leon.image = lista_imagem_leon_vez[seletor_image_leon]
+			leon.anda()
 			
-#		if pressed_keys[K_a]:
-#			if seletor_lista_imagem_da_vez == 'normal':
-#				lista_imagem_leon_vez = lista_leon_mira_cima
-#				leon.image = lista_imagem_leon_vez[0]
-#				seletor_lista_imagem_da_vez = 'cima'
-#			elif seletor_lista_imagem_da_vez == 'cima':			
-#				lista_imagem_leon_vez = lista_leon_mira_normal
-#				leon.image = lista_imagem_leon_vez[0]
-#				seletor_lista_imagem_da_vez = 'normal'
-		
+		#faz o pulo de Leon
+		if pular == True and contador_pulo < 10:
+			contador_pulo += 1
+			if leon.rect[0] < 586:
+				leon.rect[0] += 15
+			leon.rect[1] -= 15
+		elif pular == True and contador_pulo < 20:
+			if ret_player.collidelist(lista_ret_sobre_type1) == -1:
+				if leon.rect[0] < 586:
+					leon.rect[0] += 15
+				leon.rect[1] += 15
+				contador_pulo += 1
+				
+		elif contador_pulo == 20:
+			pular = False
+			contador_pulo = 0
 		if pressed_keys[K_p]:
-			atirar = True
+			leon_tiro.atirar = True
 			som_tiro.play()
 			
-		if pygame.sprite.collide_mask(tiro, inimigo):
-			inimigo.rect = [750, 480]
-			mor = True
-		tela.screen.fill((0,0,0))
+		if pressed_keys[K_i]:
+			if pular == False:
+				pular = True
+				#contador_pulo = 0
+				
+		if pressed_keys[K_ESCAPE]:
+			break
 		
-		#blita a imagem do inimigo
 		
+		if leon_tiro.atirar and pygame.sprite.collide_mask(leon_tiro, inimigo):
+			inimigo.morre()
+			inimigo.morreu = True
+			inimigos_mortos += 1
+			leon.pontua()
+			
+		if (inimigo.morreu == False) and (inimigo.morreu == False) and pygame.sprite.collide_mask(leon, inimigo) and leon.cima_obstaculo == False:
+			leon.atualiza_posicao(0,390)
+			inimigo.atualiza_posicao(inimigo.posicoesX[inimigo.posicaoX], inimigo.posicoesY[inimigo.posicaoY])
+			leon.morre()
+			
+		if (pular == True) and pygame.sprite.collide_mask(leon_tiro, bonus): 
+			leon.vida += 1
+			bonus.atualiza_posicao(bonus.rect[0] + 2000, bonus.rect[1])
+			bonus_aparece = False
+			
+		if pygame.sprite.collide_mask(leon, bonus_pontos): 
+			leon.pontuacao += 100
+			bonus_pontos.atualiza_posicao(obstaculo1[1][0] + 2000, obstaculo1[1][1])
+			bonus_pontos_aparece = False
+			
 		tela.screen.fill((0,0,0))
 		#colocacao da imagem de fundo na tela
-		tela.screen.blit(image_fundo, image_fundo_position)
+		tela.screen.blit(paisagem , (0,0))
 		tela.screen.blit(tela.background, tela.background_position)
 		
-		#colocacao obstaculo2:
-		obstaculo_type2(pedra)
-		
-		#colocacao ponte
-		ponte1(ponte)
 		#colocacao dos personagens na tela
-		tela.screen.blit(leon.image, leon.rect)
 		
-		#colocacao obstaculo1:
-		obstaculo_type1(pedra)
-		
-		if (mor == False):
+		if inimigos_mortos > 10:
+			inimigo.morreu = True
+				
+		if inimigo.morreu == False:
 			tela.screen.blit(inimigo.image,inimigo.rect)
-			#inimigo.rect[0] -= 5
-		#tela.screen.blit(inimigo.image, inimigo.rect)
-		if atirar and tiro.rect[0] < 800:
-			tela.screen.blit(tiro.image , tiro.rect)
-			tela.screen.blit(fogo_tiro , fogo_position)
-			
 		
+		tela.screen.blit(obstaculo1[0] , obstaculo1[1])
+		
+		tela.screen.blit(bonus.image, bonus.rect)	
+		
+		if pular == True:
+			tela.screen.blit(obstaculo2[0] , obstaculo2[1])
+			tela.screen.blit(bonus_pontos.image, bonus_pontos.rect)	
+			tela.screen.blit(leon.image, leon.rect)
+			
+		elif pular == False:
+			tela.screen.blit(leon.image, leon.rect)
+			tela.screen.blit(obstaculo2[0] , obstaculo2[1])
+			tela.screen.blit(bonus_pontos.image, bonus_pontos.rect)	
+			
+			
+		if leon_tiro.atirar and leon_tiro.rect[0] < 800:
+			tela.screen.blit(leon_tiro.image , leon_tiro.rect)
+			
+		if inimigo_tiro.atirar and inimigo_tiro.rect[0] > 0:
+			tela.screen.blit(inimigo_tiro.image , inimigo_tiro.rect)
+			
+		#Imprime a pontuacao
+		tela.screen.blit(tela.frase,tela.frase_position)
+		
+		
+		if leon.game_over:
+			game_over()
+			return 'menu'
+			break
 		#atualiza a tela
 		pygame.display.update()
 		
@@ -272,7 +323,11 @@ def main():
 			seletor_image_leon += 1	
 			seletor_imagem_inimigo += 1	
 		controle_velocidade_troca_imagens += 1
-		novo_inimigo += 1
+		
+		
+		
 if __name__ == '__main__':
 	
-	main()
+	Fase2()
+
+

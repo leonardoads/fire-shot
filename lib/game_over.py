@@ -11,7 +11,6 @@ def game_over():
 			if event.type == QUIT:
 				exit()
 			if event.type == KEYDOWN:
-				if event.key == K_RETURN:
 					return
 					
 					

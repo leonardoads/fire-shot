@@ -11,7 +11,11 @@ from inimigo import *
 from tela import *
 from tiro import *
 from game_over import *
+from obstaculos import *
 from pausa import *
+from bonus import *
+from passou_fase1 import *
+
 #from   import *
 
 def obstaculo_type1(pedra, background_position):
@@ -88,10 +92,15 @@ def main():
 	
 	pular = False
 	contador_pulo = 0
+	pontuacao = 0
+	bonus = Bonus('bonus', 'maca_verde_10.png')
+	bonus_aparece = True
+	bonus_pontos = Bonus('bonus', 'maca_verde_10.png')
+	bonus_pontos_aparece = True
 	
 	while True:
 		clock = pygame.time.Clock()
-		clock.tick(60)
+		clock.tick(100)
 		for event in pygame.event.get():
 			if event.type is pygame.QUIT:
 				exit()
@@ -100,12 +109,22 @@ def main():
 				if event.key == K_o:
 					leon.troca_imagem_mira()
 					leon_tiro.troca_direcao_tiro()
-					
-					
+	
 		###########Variaveis que devem ser atualizadas em cada laço#######
 		# criacao dos obstaculos		
 		obstaculo1 = obstaculo_type2(pedra, tela.background_position)
 		obstaculo2 = obstaculo_type1(pedra, tela.background_position)
+		
+		#Verifia se passou de fase			
+		if  tela.background_position[0] < -7100:
+			b = passa_fase1()
+			break 
+			
+		if bonus_aparece == True:
+			bonus.atualiza_posicao(tela.background_position[0]+1800,tela.background_position[1]+300 )
+		if bonus_pontos_aparece == True:
+			bonus_pontos.atualiza_posicao(obstaculo2[1][0]+50 , obstaculo2[1][1] )
+			
 		#Criacao das listas de retangulos dos obstaculos
 		ret_player = pygame.Rect(leon.rect[0],leon.rect[1],leon.image.get_size()[0],leon.image.get_size()[1])		
 		lista_ret_frente = [ret_pedra1type1,ret_pedra2type1]
@@ -116,7 +135,10 @@ def main():
 		
 		#verifica se os personagens chegaram ao limite da tela
 		leon.colide_tela()
-		inimigo.colide_tela()	
+		inimigo.colide_tela()
+		
+		pontuacao = "Score:%04i         vidas: %02i"%(leon.pontuacao, leon.vida)
+		tela.imprime_texto(pontuacao, tamanho = 30)
 		
 		#Controla a posicao do fogo para que fique sempre proximo a leon
 		leon_tiro.fogo_rect = [leon.rect[0]+80,leon.rect[1]+39]
@@ -142,7 +164,9 @@ def main():
 		#controladores do pulo
 		leon.alterna_posicao()	
 		
+		if pular == True: leon.collide_obstaculo(True)
 		
+		elif pular == False: leon.collide_obstaculo(False)
 		
 		#controla a imagem a ser usada no  movimento dos Personagens
 		if seletor_image_leon  > 6:
@@ -168,7 +192,10 @@ def main():
 		if pressed_keys[K_ESCAPE]:
 			break
 		if pressed_keys[K_PAUSE]:
-			pausa()
+			a = pausa()
+			if a == 'menu':
+				break 
+				
 		#controla o movimento de Leon
 		if (pressed_keys[K_RIGHT] and ret_player.collidelist(lista_ret_frente) == -1) or (pressed_keys[K_RIGHT] and contador_pulo >= 10):
 			leon_tiro.fogo_rect = (leon.rect[0]+85,leon.rect[1]+25)
@@ -209,6 +236,7 @@ def main():
 					leon.rect[0] += 15
 				leon.rect[1] += 15
 				contador_pulo += 1
+				
 		elif contador_pulo == 20:
 			pular = False
 			contador_pulo = 0
@@ -229,15 +257,23 @@ def main():
 			inimigo.morre()
 			inimigo.morreu = True
 			inimigos_mortos += 1
+			leon.pontua()
 			
-		if (inimigo.morreu == False) and pygame.sprite.collide_mask(leon, inimigo):
+		if (inimigo.morreu == False) and (inimigo.morreu == False) and pygame.sprite.collide_mask(leon, inimigo) and leon.cima_obstaculo == False:
 			leon.atualiza_posicao(0,390)
 			inimigo.atualiza_posicao(inimigo.posicoesX[inimigo.posicaoX], inimigo.posicoesY[inimigo.posicaoY])
 			leon.morre()
-		#if pygame.sprite.collide_mask(leon, obstaculo1):
-			##if leon.rect[0] >= 200:
-			#print obstaculo1.tamanho, leon.collide_direction
-		#leon.atualiza_posicao(210,500)		
+			
+		if (pular == True) and pygame.sprite.collide_mask(leon_tiro, bonus): 
+			leon.vida += 1
+			bonus.atualiza_posicao(bonus.rect[0] + 2000, bonus.rect[1])
+			bonus_aparece = False
+			
+		if pygame.sprite.collide_mask(leon, bonus_pontos): 
+			leon.pontuacao += 100
+			bonus_pontos.atualiza_posicao(obstaculo1[1][0] + 2000, obstaculo1[1][1])
+			bonus_pontos_aparece = False
+			
 		tela.screen.fill((0,0,0))
 		#colocacao da imagem de fundo na tela
 		tela.screen.blit(tela.background, tela.background_position)
@@ -249,18 +285,32 @@ def main():
 				
 		if inimigo.morreu == False:
 			tela.screen.blit(inimigo.image,inimigo.rect)
-		tela.screen.blit(obstaculo2[0] , obstaculo2[1])
+		
 		tela.screen.blit(obstaculo1[0] , obstaculo1[1])
-		tela.screen.blit(leon.image, leon.rect)
+		
+		tela.screen.blit(bonus.image, bonus.rect)	
+		
+		if pular == True:
+			tela.screen.blit(obstaculo2[0] , obstaculo2[1])
+			tela.screen.blit(bonus_pontos.image, bonus_pontos.rect)	
+			tela.screen.blit(leon.image, leon.rect)
+			
+		elif pular == False:
+			tela.screen.blit(leon.image, leon.rect)
+			tela.screen.blit(obstaculo2[0] , obstaculo2[1])
+			tela.screen.blit(bonus_pontos.image, bonus_pontos.rect)	
+			
 			
 		if leon_tiro.atirar and leon_tiro.rect[0] < 800:
 			tela.screen.blit(leon_tiro.image , leon_tiro.rect)
 			
 		if inimigo_tiro.atirar and inimigo_tiro.rect[0] > 0:
 			tela.screen.blit(inimigo_tiro.image , inimigo_tiro.rect)
+			
+		#Imprime a pontuacao
+		tela.screen.blit(tela.frase,tela.frase_position)
 		
 		
-		#print leon.game_over	
 		if leon.game_over:
 			game_over()
 			break

@@ -2,6 +2,7 @@ import pygame
 from sys import exit
 from pygame.locals import *
 from os import sep
+
 class Tiro (pygame.sprite.Sprite):
 	def __init__(self, rect):
 		self.sprite = pygame.sprite.Sprite()

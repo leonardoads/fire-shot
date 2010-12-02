@@ -8,9 +8,10 @@ class Tela:
 		self.screen_width, self.screen_height = 800,600
 		self.screen = pygame.display.set_mode((self.screen_width,self.screen_height), self.tipo[tipo], 32)
 		pygame.display.set_caption("Fire shot")
-		self.background = pygame.image.load('imagens'+ sep + pasta + sep + imagem).convert()
-		self.background_size = self.background.get_size()
-		self.background_position= [0,0]
+		if pasta != None:
+			self.background = pygame.image.load('imagens'+ sep + pasta + sep + imagem).convert_alpha()
+			self.background_size = self.background.get_size()
+			self.background_position= [0,0]
 		self.icon = pygame.image.load('imagens'+ sep +"menu" + sep + "icon.bmp")
 		pygame.display.set_icon(self.icon)
 	
@@ -22,6 +23,10 @@ class Tela:
 	
 	def sair_fullsreen(self):
 		self.screen = pygame.display.set_mode((self.screen_width,self.screen_height), 0 , 32)
-		
 	
+	def imprime_texto(self, mensagem , font = 'corrier new', tamanho = 60, Negrito = False):
+		self.fonte = pygame.font.SysFont(font ,tamanho, bold = Negrito)	
+		self.frase = self.fonte.render(mensagem , True, (255,0,0))
+		self.frase_position = (10,10)
+		
 	
